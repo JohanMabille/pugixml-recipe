@@ -1,32 +1,45 @@
+   {% set name = "pugixml" %}
+{% set version = "1.8.1" %}
+{% set sha256 = "4445a8db1421c2d2ce61140ece0837dd2651fb1049ddd820e71a7fe44be1a7cc" %}
+
 package:
-    name: pugixml
-    version: 1.8.1
+    name: {{ name|lower }}
+    version: {{ version }}
+
 source:
-    fn: pugixml-1.8.1.tar.gz
-    sha256: 4445a8db1421c2d2ce61140ece0837dd2651fb1049ddd820e71a7fe44be1a7cc
-    url: https://github.com/zeux/pugixml/archive/v1.8.1.tar.gz
+    fn: {{ name }}-{{ version }}.tar.gz
+    url: https://github.com/zeux/pugixml/archive/v{{ version }}.tar.gz
+    sha256: {{ sha256 }}
+
 build:
     noarch: ''
     noarch_python: false
+    features:
+        - cling
+        - vc14    # [win and py36]
     number: '0'
-    string: '0'
-    skip: true  # [win and py<35]
-    features:   # [win]
-      - vc14    # [win]
+    string: 'cling_0'
+    skip: true    # [win and py<36]
+
 requirements:
     build:
         - cmake
         - toolchain
+        - cling-patches
         - gcc-7                       # [linux and not armv7l]
     run:
+        - vc 14                       # [win and py>35]
+        - cling-patches
         - vs2015_runtime              # [win]
         - libgcc-7                    # [linux and not armv7l]
+
 test:
     commands:
         - if not exist %LIBRARY_LIB%\\pugixml.lib exit 1     # [win]
         - if not exist %LIBRARY_INC%\\pugiconfig.hpp exit 1  # [win]
         - test -f $PREFIX/lib/libpugixml.a                   # [unix]
         - test -f $PREFIX/include/pugiconfig.hpp             # [unix]
+
 about:
     description: 'pugixml is a C++ XML processing library, which consists of a DOM-like
         interface
@@ -51,6 +64,7 @@ about:
     license_family: MIT
     license_file: README.md
     summary: Light-weight, simple and fast XML parser for C++ with XPath support
+
 extra:
     final: true
     recipe-maintainers:
